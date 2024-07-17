@@ -18,4 +18,9 @@
       <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.0.0" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Repositories\Contracts\" />
+      <Folder Include="Repositories\Implementations\" />
+    </ItemGroup>
 </Project>
