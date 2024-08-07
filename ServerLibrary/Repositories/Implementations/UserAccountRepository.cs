@@ -1,12 +1,12 @@
 ﻿using BaseLibrary.DTOs;
 using BaseLibrary.Entities;
 using BaseLibrary.Responses;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ServerLibrary.Data;
 using ServerLibrary.Helpers;
 using ServerLibrary.Repositories.Contracts;
+using Constants = ServerLibrary.Helpers.Constants;
 
 namespace ServerLibrary.Repositories.Implementations
 {
@@ -27,6 +27,28 @@ namespace ServerLibrary.Repositories.Implementations
                 Email = user.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(user.Password)
             });
+
+            // Check, create and assign role
+            var checkAdminRole = await appDbContext.SystemRoles.FirstOrDefaultAsync(_ => _.Name!.Equals(Constants.Admin));
+            if (checkAdminRole is null)
+            {
+                var createAdminRole = await AddToDatabase(new SystemRole() { Name = Constants.Admin });
+                await AddToDatabase(new UserRole() { RoleId = createAdminRole.Id, UserId = applicationUser.Id });
+                return new GeneralResponse(true, "Account created successfully");
+            }
+
+            var checkUserRole = await appDbContext.SystemRoles.FirstOrDefaultAsync(_ => _.Name!.Equals(Constants.User));
+            SystemRole response = new();
+            if (checkUserRole is null)
+            {
+                response = await AddToDatabase(new SystemRole() { Name = Constants.Admin });
+                await AddToDatabase(new UserRole() { RoleId = response.Id, UserId = applicationUser.Id });
+            }
+            else
+            {
+                await AddToDatabase(new UserRole() { RoleId = checkUserRole.Id, UserId = applicationUser.Id });
+            }
+            return new GeneralResponse(true, "Account created successfully");
         }
 
         // Function for user login
