@@ -10,7 +10,7 @@ using Constants = ServerLibrary.Helpers.Constants;
 
 namespace ServerLibrary.Repositories.Implementations
 {
-    internal class UserAccountRepository(IOptions<JwtSection> config, AppDbContext appDbContext) : IUserAccount
+    public class UserAccountRepository(IOptions<JwtSection> config, AppDbContext appDbContext) : IUserAccount
     {
         // Function for new user registration
         public async Task<GeneralResponse> CreateAsync(Register user)
@@ -41,7 +41,7 @@ namespace ServerLibrary.Repositories.Implementations
             SystemRole response = new();
             if (checkUserRole is null)
             {
-                response = await AddToDatabase(new SystemRole() { Name = Constants.Admin });
+                response = await AddToDatabase(new SystemRole() { Name = Constants.User });
                 await AddToDatabase(new UserRole() { RoleId = response.Id, UserId = applicationUser.Id });
             }
             else
